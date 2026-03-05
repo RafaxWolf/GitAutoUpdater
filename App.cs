@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using GitAutoUpdater.Core;
 using Microsoft.Extensions.Configuration;
 
 namespace GitAutoUpdater

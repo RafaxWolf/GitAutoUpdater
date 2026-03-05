@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace GitAutoUpdater
+namespace GitAutoUpdater.Core
 {
     public static class Logger
     {

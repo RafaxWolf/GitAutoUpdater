@@ -3,7 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using GitAutoUpdater.Schemas;
 
-namespace GitAutoUpdater
+namespace GitAutoUpdater.Core
 {
     public static class GitService
     {
