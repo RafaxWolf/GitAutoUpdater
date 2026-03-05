@@ -1,0 +1,11 @@
+{
+  "AppSettings": {
+    "GitSettings": {
+      "RepoUrl": "https://github.com/smartcmd/MinecraftConsoles.git",
+      "Branch": "main",
+      "LocalPath": "Default"
+    },
+    "IntSeconds": 60,
+    "LogFile": "logs.log"
+  }
+}
