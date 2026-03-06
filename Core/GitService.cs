@@ -39,7 +39,7 @@ namespace GitAutoUpdater.Core
         /// <summary>
         /// Verifica si Git se encuentra instalado y/o en el PATH
         /// </summary>
-        public static bool GitInstalled()
+        public static bool Installed()
         {
             var versionExec = RunGitCommand("--version", AppContext.BaseDirectory);
 
@@ -52,7 +52,7 @@ namespace GitAutoUpdater.Core
         /// <summary>
         /// Clona el repositorio de GitHub el equipo
         /// </summary>
-        public static void GitClone(GitSettings settings, string baseDir)
+        public static void Clone(GitSettings settings, string baseDir)
         {
             Logger.Log("[/] Clonando Repositorio...");
 
@@ -70,7 +70,7 @@ namespace GitAutoUpdater.Core
         /// <summary>
         /// Verifica si hay actualizaciones en el repositorio Remoto
         /// </summary>
-        public static bool UpdatesVerify(GitSettings settings)
+        public static bool Updates(GitSettings settings)
         {
             // Verificador carpeta
             if (!Directory.Exists(settings.LocalPath))
@@ -102,7 +102,7 @@ namespace GitAutoUpdater.Core
         /// <summary>
         /// Actualiza el Repositorio Local con los cambios del Repositorio Remoto
         /// </summary>
-        public static string GitPull(GitSettings settings)
+        public static string Pull(GitSettings settings)
         {
             var pullExec = RunGitCommand("pull", settings.LocalPath);
 

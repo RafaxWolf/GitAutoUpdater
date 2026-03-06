@@ -7,7 +7,10 @@ namespace GitAutoUpdater.Core
     {
         private static string _logPath;
 
-        public static void LoggerInit(string folderPath, string logFile)
+        /// <summary>
+        /// Inicializador del sistema de Logs
+        /// </summary>
+        public static void Init(string folderPath, string logFile)
         {
             // Si la carpeta no existe, la crea.
             if (!Directory.Exists(folderPath))
@@ -18,7 +21,7 @@ namespace GitAutoUpdater.Core
         }
 
         /// <summary>
-        /// Constructor de los Logs
+        /// Constructor de Logs
         /// Ingresa un nuevo registro en los Logs
         /// </summary>
         public static void Log(string msg)
