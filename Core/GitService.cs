@@ -62,9 +62,28 @@ namespace GitAutoUpdater.Core
             {
                 Logger.Log("[!] Error al Clonar.");
                 Logger.Log(cloneExec.error);
+                Environment.Exit(cloneExec.exitCode);
             }
             Logger.Log("[+] Repositorio Clonado.");
             Logger.Log(cloneExec.output);
+        }
+
+        /// <summary>
+        /// Actualiza el Repositorio Local con los cambios del Repositorio Remoto
+        /// </summary>
+        public static string Pull(GitSettings settings)
+        {
+            var pullExec = RunGitCommand("pull", settings.LocalPath);
+
+            if (pullExec.exitCode != 0)
+            {
+                Logger.Log("[!] Error al intentar hacer PULL del repositorio.");
+                Logger.Log(pullExec.error);
+                return pullExec.error;
+            }
+
+            Logger.Log(pullExec.output);
+            return pullExec.output;
         }
 
         /// <summary>
@@ -85,10 +104,19 @@ namespace GitAutoUpdater.Core
             var localResult = RunGitCommand("rev-parse HEAD", settings.LocalPath);
             var remoteResult = RunGitCommand($"rev-parse origin/{settings.Branch}", settings.LocalPath);
 
-            if (localResult.exitCode != 0 || remoteResult.exitCode != 0)
+            if (localResult.exitCode != 0)
             {
-                Logger.Log("[!] Error al obtener Hashes.");
+                Logger.Log("[!] Error al obtener los Hashes.");
                 Logger.Log(localResult.error);
+                Logger.Log(remoteResult.output.Trim());
+                return false;
+
+            }
+            
+            if (remoteResult.exitCode != 0)
+            {
+                Logger.Log("[!] Error al obtener los Hashes.");
+                Logger.Log(localResult.output.Trim());
                 Logger.Log(remoteResult.error);
                 return false;
             }
@@ -99,22 +127,6 @@ namespace GitAutoUpdater.Core
             return local != remote;
         }
 
-        /// <summary>
-        /// Actualiza el Repositorio Local con los cambios del Repositorio Remoto
-        /// </summary>
-        public static string Pull(GitSettings settings)
-        {
-            var pullExec = RunGitCommand("pull", settings.LocalPath);
-
-            if (pullExec.exitCode != 0)
-            {
-                Logger.Log("[!] Error al intentar hacer PULL del repositorio.");
-                Logger.Log(pullExec.error);
-                return pullExec.error;
-            }
-
-            Logger.Log(pullExec.output);
-            return pullExec.output;
-        }
+        
     }
 }

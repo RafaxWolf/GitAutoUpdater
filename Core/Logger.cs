@@ -24,12 +24,13 @@ namespace GitAutoUpdater.Core
         /// Constructor de Logs
         /// Ingresa un nuevo registro en los Logs
         /// </summary>
-        public static void Log(string msg)
+        public static void Log(string msg, bool silent = false)
         {
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Fecha y hora
             string logLine = $"[{timestamp}] {msg}"; // Linea del Registro
 
-            Console.WriteLine(logLine); // Imprime en Consola
+            if (!silent)
+                Console.WriteLine(logLine); // Imprime en Consola
 
             // Si '_logPath' existe crea y/o edita el archivo de Logs
             if (!string.IsNullOrEmpty(_logPath))

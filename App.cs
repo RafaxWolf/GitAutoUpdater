@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Xml;
 using GitAutoUpdater.Core;
 using GitAutoUpdater.Schemas;
 using Microsoft.Extensions.Configuration;
@@ -12,46 +13,74 @@ namespace GitAutoUpdater
     {
         static void Main()
         {
-            // Inicio del Software
+            // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
                 Logger.Log("[!] Saliendo...");
                 Environment.Exit(0);
             };
 
+            // Inicio del Software
             Console.WriteLine("[/] Iniciando Auto Updater...");
 
+            // Variables Importantes
+            var timer = new TimeWaiter();
+            string baseDir = AppContext.BaseDirectory;
+
+            /*
+             * Cargador de la configuración
+             */
             var config = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("settings.json", optional: false, reloadOnChange: true)
                 .Build();
 
             var appSettings = config.GetSection("AppSettings").Get<AppSettings>();
-            Console.WriteLine("[+] Configuración cargada.");
+
+            /*
+             * Iniciador de los Logs.
+             */
+
+            string logsDir = Path.Combine(baseDir, "Logs");
+            Logger.Init(logsDir, appSettings.LogFile);
+            Logger.Log("[+] Configuración cargada.");
+            
 
             var gitSettings = appSettings.GitSettings;
             if (!GitService.Installed())
             {
-                Console.WriteLine("[!] Error: Git no se encuentra instalado");
+                Logger.Log("[!] Error: Git no se encuentra instalado.");
+                Logger.Log("[!] Por favor instale Git antes de usar el Software.");
                 return;
             }
 
-            string baseDir = AppContext.BaseDirectory;
             if (gitSettings.LocalPath == "Default" || gitSettings.LocalPath == "./")
             {
                 gitSettings.LocalPath = Path.Combine(baseDir, "Repository");
             }
 
-            Logger.Init(gitSettings.LocalPath, appSettings.LogFile);
             Logger.Log("[+] Auto Updater Inicializado.");
+
             // -----------------------------------------------------------------------------
             
             // Funciones principales
-            if (!Directory.Exists(gitSettings.LocalPath))
+
+            /*
+             * Nota: si falla y no clona me voy a cagar en toda su re puta madre
+             */
+
+            string gitFolder = Path.Combine(gitSettings.LocalPath, ".git");
+
+            if (!Directory.Exists(gitSettings.LocalPath) || !Directory.Exists(gitFolder))
             {
+                Logger.Log("[!] El repositorio local no existe.");
                 GitService.Clone(gitSettings, baseDir);
             }
-
+                
+            /*
+             * Loop principal.
+             * Verifica cada <IntSeconds> en "settings.json" 
+             */
             while (true)
             {
                 try
@@ -73,9 +102,12 @@ namespace GitAutoUpdater
                 }
                 catch (Exception ex) 
                 {
+                    /*
+                     * Nota: Algun dia serviras, por ahora solo SIGUE ESPERANDO.
+                     */
                     Logger.Log("[!] Error: " + ex.Message);
                 }
-
+                // Looper para la re-ejecución
                 Thread.Sleep(appSettings.IntSeconds * 1000);
             }
         }
