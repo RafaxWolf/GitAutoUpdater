@@ -11,10 +11,12 @@ namespace GitAutoUpdater.Core
         private int counter = 0;
         private Thread thread;
 
-        public void Start(string text, bool noLogs = false)
+        /// <summary>
+        /// Inicia el Timer
+        /// </summary>
+        public void Start(string text)
         {
-            if(!noLogs)
-                Logger.Log("[/] " + text, true);
+            Logger.Log("[/] " + text, true);
 
             active = true;
             thread = new Thread(() =>

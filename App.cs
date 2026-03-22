@@ -85,19 +85,22 @@ namespace GitAutoUpdater
             {
                 try
                 {
-                    Logger.Log("[/] Verificando por Actualizaciones...");
+                    timer.Start("Verificando por Actualizaciones...");
 
                     if (GitService.Updates(gitSettings))
                     {
-                        Logger.Log("[!] Actualización detectada.");
+                        timer.Stop("[!] Actualización detectada.");
 
+                        // Actualizar repo
+                        timer.Start("Actualizando repositorio local...");
                         string result = GitService.Pull(gitSettings);
-                        Logger.Log(result);
+                        timer.Stop(result);
+
                         Logger.Log("[+] Repositorio local Actualizado.");
                     }
                     else
                     {
-                        Logger.Log("[+] No hay actualizaciónes.");
+                        timer.Stop("[+] No hay actualizaciónes.");
                     }
                 }
                 catch (Exception ex) 
