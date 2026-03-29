@@ -47,8 +47,11 @@ namespace GitAutoUpdater
             
 
             var gitSettings = appSettings.GitSettings;
+
+            // Verificar si Git esta instalado
             if (!GitService.Installed())
             {
+                // Si git no esta instalado, muestra error y sale del programa
                 Logger.Log("[!] Error: Git no se encuentra instalado.");
                 Logger.Log("[!] Por favor instale Git antes de usar el Software.");
                 return;
@@ -89,10 +92,12 @@ namespace GitAutoUpdater
 
                     if (GitService.Updates(gitSettings))
                     {
+                        // Detener timer de verificación
                         timer.Stop("[!] Actualización detectada.");
 
-                        // Actualizar repo
+                        // Actualizar repo e iniciar timer de actualización
                         timer.Start("Actualizando repositorio local...");
+
                         string result = GitService.Pull(gitSettings);
                         timer.Stop(result);
 
@@ -110,6 +115,7 @@ namespace GitAutoUpdater
                      */
                     Logger.Log("[!] Error: " + ex.Message);
                 }
+
                 // Looper para la re-ejecución
                 Thread.Sleep(appSettings.IntSeconds * 1000);
             }
