@@ -16,12 +16,14 @@ namespace GitAutoUpdater
             // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
-                Logger.Log("[!] Saliendo...");
+                Logger.Log("Saliendo...", Logger.LogLevel.Warning);
                 Environment.Exit(0);
             };
 
             // Inicio del Software
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("[/] Iniciando Auto Updater...");
+            Console.ResetColor();
 
             // Variables Importantes
             var timer = new TimeWaiter();
@@ -43,7 +45,7 @@ namespace GitAutoUpdater
 
             string logsDir = Path.Combine(baseDir, "Logs");
             Logger.Init(logsDir, appSettings.LogFile);
-            Logger.Log("[+] Configuración cargada.");
+            Logger.Log("Configuración cargada.", Logger.LogLevel.Success);
             
 
             var gitSettings = appSettings.GitSettings;
@@ -52,8 +54,8 @@ namespace GitAutoUpdater
             if (!GitService.Installed())
             {
                 // Si git no esta instalado, muestra error y sale del programa
-                Logger.Log("[!] Error: Git no se encuentra instalado.");
-                Logger.Log("[!] Por favor instale Git antes de usar el Software.");
+                Logger.Log("Error: Git no se encuentra instalado.", Logger.LogLevel.Error);
+                Logger.Log("Por favor instale Git antes de usar el Software.", Logger.LogLevel.Warning);
                 return;
             }
 
@@ -62,7 +64,7 @@ namespace GitAutoUpdater
                 gitSettings.LocalPath = Path.Combine(baseDir, "Repository");
             }
 
-            Logger.Log("[+] Auto Updater Inicializado.");
+            Logger.Log("Auto Updater Inicializado.", Logger.LogLevel.Success);
 
             // -----------------------------------------------------------------------------
             
@@ -76,7 +78,7 @@ namespace GitAutoUpdater
 
             if (!Directory.Exists(gitSettings.LocalPath) || !Directory.Exists(gitFolder))
             {
-                Logger.Log("[!] El repositorio local no existe.");
+                Logger.Log("El repositorio local no existe.", Logger.LogLevel.Warning);
                 GitService.Clone(gitSettings, baseDir);
             }
                 
@@ -93,19 +95,19 @@ namespace GitAutoUpdater
                     if (GitService.Updates(gitSettings))
                     {
                         // Detener timer de verificación
-                        timer.Stop("[!] Actualización detectada.");
+                        timer.Stop("Actualización detectada.", Logger.LogLevel.Warning);
 
                         // Actualizar repo e iniciar timer de actualización
                         timer.Start("Actualizando repositorio local...");
 
                         string result = GitService.Pull(gitSettings);
-                        timer.Stop(result);
+                        timer.Stop(result, Logger.LogLevel.Process);
 
-                        Logger.Log("[+] Repositorio local Actualizado.");
+                        Logger.Log("Repositorio local Actualizado.", Logger.LogLevel.Success);
                     }
                     else
                     {
-                        timer.Stop("[+] No hay actualizaciónes.");
+                        timer.Stop("No hay actualizaciónes.", Logger.LogLevel.Success);
                     }
                 }
                 catch (Exception ex) 
@@ -113,7 +115,7 @@ namespace GitAutoUpdater
                     /*
                      * Nota: Algun dia serviras, por ahora solo SIGUE ESPERANDO.
                      */
-                    Logger.Log("[!] Error: " + ex.Message);
+                    Logger.Log("Error: " + ex.Message, Logger.LogLevel.Error);
                 }
 
                 // Looper para la re-ejecución

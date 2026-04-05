@@ -16,7 +16,7 @@ namespace GitAutoUpdater.Core
         /// </summary>
         public void Start(string text)
         {
-            Logger.Log("[/] " + text, true);
+            Logger.Log(text, Logger.LogLevel.Process, true);
 
             active = true;
             thread = new Thread(() =>
@@ -34,8 +34,9 @@ namespace GitAutoUpdater.Core
             thread.Start();
         }
 
-        public void Stop(string msg = "")
+        public void Stop(string msg = "", Logger.LogLevel type = Logger.LogLevel.Info)
         {
+
             active = false;
             thread.Join();
 
@@ -43,7 +44,7 @@ namespace GitAutoUpdater.Core
 
             if (!string.IsNullOrWhiteSpace(msg))
             {
-                Logger.Log(msg);
+                Logger.Log(msg, type);
             }
         }
     }

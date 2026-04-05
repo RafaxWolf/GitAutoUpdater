@@ -1,8 +1,8 @@
 {
   "AppSettings": {
     "GitSettings": {
-      "RepoUrl": "https://github.com/RafaxWolf/LoginMaster-TypeScript.git",
-      "Branch": "main",
+      "RepoUrl": "https://github.com/RafaxWolf/Prisma.git",
+      "Branch": "web",
       "LocalPath": "Default"
     },
     "IntSeconds": 60,

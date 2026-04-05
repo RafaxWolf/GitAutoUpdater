@@ -54,18 +54,25 @@ namespace GitAutoUpdater.Core
         /// </summary>
         public static void Clone(GitSettings settings, string baseDir)
         {
-            Logger.Log("[/] Clonando Repositorio...");
+            Logger.Log("Clonando Repositorio...", Logger.LogLevel.Process);
 
-            var cloneExec = RunGitCommand($"clone {settings.RepoUrl} \"{settings.LocalPath}\"", baseDir);
+            var cloneExec = RunGitCommand(
+                $"clone -b {settings.Branch} --single-branch {settings.RepoUrl} \"{settings.LocalPath}\"",
+                baseDir
+            );
 
             if (cloneExec.exitCode != 0)
             {
-                Logger.Log("[!] Error al Clonar.");
-                Logger.Log(cloneExec.error);
+                Logger.Log("Error al Clonar.", Logger.LogLevel.Error);
+                Logger.Log(cloneExec.error, Logger.LogLevel.Error);
                 Environment.Exit(cloneExec.exitCode);
             }
-            Logger.Log("[+] Repositorio Clonado.");
-            Logger.Log(cloneExec.output);
+            else
+            {
+                Logger.Log("Repositorio Clonado.", Logger.LogLevel.Success);
+                Logger.Log(cloneExec.output.Trim());
+
+            }
         }
 
         /// <summary>
@@ -73,11 +80,14 @@ namespace GitAutoUpdater.Core
         /// </summary>
         public static string Pull(GitSettings settings)
         {
-            var pullExec = RunGitCommand("pull", settings.LocalPath);
+            var pullExec = RunGitCommand(
+                $"pull origin {settings.Branch}", 
+                settings.LocalPath
+            );
 
             if (pullExec.exitCode != 0)
             {
-                Logger.Log("[!] Error al intentar hacer PULL del repositorio.");
+                Logger.Log("Error al intentar hacer PULL del repositorio.", Logger.LogLevel.Error);
                 Logger.Log(pullExec.error);
                 return pullExec.error;
             }
@@ -94,30 +104,32 @@ namespace GitAutoUpdater.Core
             // Verificador carpeta
             if (!Directory.Exists(settings.LocalPath))
             {
-                Logger.Log("[!] Carpeta local no existe.");
+                Logger.Log("Carpeta local no existe.", Logger.LogLevel.Error);
                 return false;
             }
 
             // Fetch
-            RunGitCommand("fetch", settings.LocalPath);
+            RunGitCommand($"fetch", settings.LocalPath);
 
             var localResult = RunGitCommand("rev-parse HEAD", settings.LocalPath);
             var remoteResult = RunGitCommand($"rev-parse origin/{settings.Branch}", settings.LocalPath);
 
             if (localResult.exitCode != 0)
             {
-                Logger.Log("[!] Error al obtener los Hashes.");
-                Logger.Log(localResult.error);
-                Logger.Log(remoteResult.output.Trim());
+                Console.WriteLine();
+                Logger.Log("Error al obtener los Hashes.", Logger.LogLevel.Warning);
+                Logger.Log(localResult.error, Logger.LogLevel.Error);
+                Logger.Log(remoteResult.output.Trim(), Logger.LogLevel.Process);
                 return false;
 
             }
             
             if (remoteResult.exitCode != 0)
             {
-                Logger.Log("[!] Error al obtener los Hashes.");
-                Logger.Log(localResult.output.Trim());
-                Logger.Log(remoteResult.error);
+                Console.WriteLine();
+                Logger.Log("Error al obtener los Hashes.", Logger.LogLevel.Warning);
+                Logger.Log(localResult.output.Trim(), Logger.LogLevel.Process);
+                Logger.Log(remoteResult.error, Logger.LogLevel.Error);
                 return false;
             }
 
