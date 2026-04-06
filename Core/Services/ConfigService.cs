@@ -8,39 +8,53 @@ namespace GitAutoUpdater.Core.Services
         private static string ConfigPath => Path.Combine(AppContext.BaseDirectory, "settings.json");
 
         /// <summary>
+        /// Estructura del archivo de configuración por defecto.
+        /// </summary>
+        private static readonly string defaultConfig = @"{
+    ""AppSettings"": {
+        ""GitSettings"": {
+            ""RepoUrl"": """",
+            ""Branch"": ""main"",
+            ""LocalPath"": ""Default"",
+            ""UseDedicatedFolder"": false,
+        },
+        ""IntSeconds"": 60,
+        ""LogFile"": ""logs.log""
+    }
+}";
+
+        /// <summary>
         /// Verifica que el archivo de configuración exista, si no existe, se crea uno nuevo con valores por defecto y se le indica al usuario que lo edite antes de ejecutar el programa.
         /// </summary>
         private static void EnsureConfigExists()
         {
             // Si el archivo de configuración ya existe, no hace nada.
             if (File.Exists(ConfigPath))
-                return;
+            {
+                string fileContent = File.ReadAllText(ConfigPath);
 
-            Console.WriteLine("[!] settings.json no se pudo encontrar. Creando uno nuevo...");
+                if(!string.IsNullOrWhiteSpace(fileContent))
+                    return;
 
-            // Crea un nuevo archivo de configuración con valores por defecto. El usuario deberá editar este archivo con la configuración correcta antes de ejecutar el programa.
-            string defaultConfig = @"{
-    ""AppSettings"": {
-        ""GitSettings"": {
-            ""RepoUrl"": """",
-            ""Branch"": ""main"",
-            ""LocalPath"": ""Repository"",
-            ""UseDedicatedFolder"": ""false"",
-        },
-        ""IntSeconds"": 60,
-        ""LogFile"": ""logs.log""
-    }
-}";
-            // Escribe el archivo de configuración con los valores por defecto.
-            File.WriteAllText(ConfigPath, defaultConfig);
-            Console.WriteLine("[!] settings.json creado. Por favor edite el archivo con la configuración correcta antes de ejecutar.");
+                Console.WriteLine("[!] settings.json está vacío. Creando uno nuevo...");
+                File.WriteAllText(ConfigPath, defaultConfig);
+            }
+            else
+            {
+                Console.WriteLine("[!] settings.json no se pudo encontrar. Creando uno nuevo...");
+
+                // Escribe el archivo de configuración con los valores por defecto.
+                File.WriteAllText(ConfigPath, defaultConfig);
+                Console.WriteLine("[!] settings.json creado. Por favor edite el archivo con la configuración correcta antes de ejecutar.");
+            }
+
         }
 
         /// <summary>
         /// Verifica que todas las configuraciones sean válidas, si no lo son, se le indica al usuario que arregle el archivo de configuración antes de ejecutar el programa.
         /// </summary>
         /// <returns>Settings Validas o null si son invalidas</returns>
-        public static AppSettings Load()
+        public static AppSettings Load(string baseDir)
         {
             // Se asegura de que el archivo de configuración exista, si no existe, se crea uno nuevo con valores por defecto y se le indica al usuario que lo edite antes de ejecutar el programa.
             EnsureConfigExists();
@@ -49,7 +63,7 @@ namespace GitAutoUpdater.Core.Services
             try
             {
                 config = new ConfigurationBuilder()
-                    .SetBasePath(AppContext.BaseDirectory)
+                    .SetBasePath(baseDir)
                     .AddJsonFile("settings.json", optional: false, reloadOnChange: true)
                     .Build();
             }

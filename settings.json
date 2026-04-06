@@ -3,9 +3,10 @@
     "GitSettings": {
       "RepoUrl": "https://github.com/RafaxWolf/Prisma.git",
       "Branch": "web",
-      "LocalPath": "Default"
+      "LocalPath": "./",
+      "UseDedicatedFolder": false
     },
-    "IntSeconds": 30,
+    "IntSeconds": 60,
     "LogFile": "logs.log"
   }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-
+﻿
 namespace GitAutoUpdater.Core
 {
     public static class Logger
@@ -25,10 +23,26 @@ namespace GitAutoUpdater.Core
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
-            // Path del Log
+            if (string.IsNullOrEmpty(logFile))
+                logFile = "logs.log";
+
+            if(!logFile.EndsWith(".log"))
+                logFile += ".log";
+
+            // Path del Log y creacion del archivo de logs.
             _logPath = Path.Combine(folderPath, logFile);
 
-            File.AppendAllText(_logPath, "");
+            if (!File.Exists(_logPath))
+            {
+                File.WriteAllText(_logPath, ""); // Crea el archivo de logs si no existe.
+            }
+            else
+            {
+                string logContent = File.ReadAllText(_logPath);
+                if (!string.IsNullOrWhiteSpace(logContent))
+                    File.AppendAllText(_logPath, "" + Environment.NewLine);
+            }
+
         }
 
         /// <summary>
@@ -57,12 +71,12 @@ namespace GitAutoUpdater.Core
 
                 Console.ForegroundColor = type switch
                 {
-                    LogLevel.Info => ConsoleColor.Gray,
+                    LogLevel.Info => ConsoleColor.White,
                     LogLevel.Process => ConsoleColor.Blue,
                     LogLevel.Warning => ConsoleColor.Yellow,
                     LogLevel.Success => ConsoleColor.Green,
                     LogLevel.Error => ConsoleColor.Red,
-                    _ => ConsoleColor.White
+                    _ => ConsoleColor.Gray
                 };
 
                 Console.WriteLine(logLine);
@@ -71,7 +85,7 @@ namespace GitAutoUpdater.Core
                 
 
             // Si '_logPath' existe crea y/o edita el archivo de Logs
-            if (!string.IsNullOrEmpty(_logPath))
+            if (File.Exists(_logPath))
                 File.AppendAllText(_logPath, logLine + Environment.NewLine);
         }
     }

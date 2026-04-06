@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using GitAutoUpdater.Schemas;
 
 namespace GitAutoUpdater.Core.Services
@@ -81,7 +79,7 @@ namespace GitAutoUpdater.Core.Services
         public static string Pull(GitSettings settings)
         {
             var pullExec = RunGitCommand(
-                $"pull origin {settings.Branch}", 
+                $"pull origin {settings.Branch}",
                 settings.LocalPath
             );
 
@@ -123,7 +121,7 @@ namespace GitAutoUpdater.Core.Services
                 return false;
 
             }
-            
+
             if (remoteResult.exitCode != 0)
             {
                 Console.WriteLine();
@@ -139,6 +137,19 @@ namespace GitAutoUpdater.Core.Services
             return local != remote;
         }
 
-        
+        public static string GetRepoName(string repoUrl)
+        {
+            if (string.IsNullOrEmpty(repoUrl))
+            {
+                Logger.Log("La URL del repositorio no puede estar vacía.", Logger.LogLevel.Error);
+                return null;
+            }
+
+            string name = repoUrl.Split('/').Last();
+            if (name.EndsWith(".git"))
+                name = name.Substring(0, name.Length - 4);
+
+            return name;
+        }
     }
 }

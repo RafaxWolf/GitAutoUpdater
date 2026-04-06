@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Xml;
-using GitAutoUpdater.Core;
+﻿using GitAutoUpdater.Core;
 using GitAutoUpdater.Core.Services;
-using GitAutoUpdater.Schemas;
-using Microsoft.Extensions.Configuration;
 
 namespace GitAutoUpdater
 {
@@ -17,7 +10,7 @@ namespace GitAutoUpdater
             // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
-                Logger.Log("Saliendo...\n", Logger.LogLevel.Warning);
+                Logger.Log("Saliendo...", Logger.LogLevel.Warning);
                 Environment.Exit(0);
             };
 
@@ -33,12 +26,9 @@ namespace GitAutoUpdater
             /*
              * Cargador de la configuración
              */
-            var config = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("settings.json", optional: false, reloadOnChange: true)
-                .Build();
-
-            var appSettings = config.GetSection("AppSettings").Get<AppSettings>();
+            var appSettings = ConfigService.Load(baseDir);
+            if (appSettings == null)
+                return;
 
             /*
              * Iniciador de los Logs.
@@ -46,8 +36,9 @@ namespace GitAutoUpdater
 
             string logsDir = Path.Combine(baseDir, "Logs");
             Logger.Init(logsDir, appSettings.LogFile);
+            Logger.Log("Iniciando Auto Updater...", Logger.LogLevel.Process, true);
             Logger.Log("Configuración cargada.", Logger.LogLevel.Success);
-            
+            Logger.Log($"Ruta de los Logs: {Path.Combine(logsDir, appSettings.LogFile)}");
 
             var gitSettings = appSettings.GitSettings;
 
@@ -60,10 +51,21 @@ namespace GitAutoUpdater
                 return;
             }
 
+            string basePath;
+
             if (gitSettings.LocalPath == "Default" || gitSettings.LocalPath == "./")
+                basePath = gitSettings.LocalPath = Path.Combine(baseDir, "Repository");
+            else
+                basePath = Path.Combine(baseDir, gitSettings.LocalPath);
+
+
+            if (gitSettings.UseDedicatedFolder)
             {
-                gitSettings.LocalPath = Path.Combine(baseDir, "Repository");
+                string repoName = GitService.GetRepoName(gitSettings.RepoUrl);
+                gitSettings.LocalPath = Path.Combine(basePath, repoName);
             }
+
+            Logger.Log("Ruta del repositorio local: " + gitSettings.LocalPath);
 
             Logger.Log("Auto Updater Inicializado.", Logger.LogLevel.Success);
 
@@ -108,7 +110,7 @@ namespace GitAutoUpdater
                     }
                     else
                     {
-                        timer.Stop("No hay actualizaciónes.", Logger.LogLevel.Success);
+                        timer.Stop("No hay actualizaciónes.");
                     }
                 }
                 catch (Exception ex) 

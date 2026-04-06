@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using GitAutoUpdater.Schemas;
+﻿using GitAutoUpdater.Schemas;
 
 namespace GitAutoUpdater.Core
 {
@@ -32,31 +29,31 @@ namespace GitAutoUpdater.Core
             else // Si GitSettings está presente, validar sus campos
             {
                 // Validar que los campos necesarios en GitSettings estén presentes y no estén vacíos
-                if (string.IsNullOrWhiteSpace(settings.GitSettings.RepoUrl))
+                if (string.IsNullOrEmpty(settings.GitSettings.RepoUrl))
                 {
-                    Console.WriteLine("[!] 'RepoUrl' faltante o está vacío");
+                    Console.WriteLine("[!] 'RepoUrl' faltante o vacío");
                     isValid = false;
                 }
 
                 // Validar que el RepoUrl sea una URL válida
-                if (string.IsNullOrWhiteSpace(settings.GitSettings.Branch))
+                if (string.IsNullOrEmpty(settings.GitSettings.Branch))
                 {
-                    Console.WriteLine("[!] 'Branch' faltante o está vacío");
+                    Console.WriteLine("[!] 'Branch' faltante o vacío");
                     isValid = false;
                 }
 
                 // Validar que el LocalPath no esté vacío
-                if (string.IsNullOrWhiteSpace(settings.GitSettings.LocalPath))
+                if (string.IsNullOrEmpty(settings.GitSettings.LocalPath))
                 {
-                    Console.WriteLine("[!] 'LocalPath' faltante o está vacío");
+                    Console.WriteLine("[!] 'LocalPath' faltante o vacío");
                     isValid = false;
                 }
             }
 
             // Validar que IntSeconds sea un número mayor a 0
-            if (settings.IntSeconds <= 0)
+            if (settings.IntSeconds <= 10)
             {
-                Console.WriteLine("[!] 'IntSeconds' debe ser un numero mayor a 0.");
+                Console.WriteLine("[!] 'IntSeconds' debe de ser mayor a 10 segundos.");
                 isValid = false;
             }
 
