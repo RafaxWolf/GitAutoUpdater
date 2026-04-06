@@ -3,7 +3,7 @@ using System.IO;
 using System.Diagnostics;
 using GitAutoUpdater.Schemas;
 
-namespace GitAutoUpdater.Core
+namespace GitAutoUpdater.Core.Services
 {
     public static class GitService
     {
@@ -69,8 +69,8 @@ namespace GitAutoUpdater.Core
             }
             else
             {
+                Logger.Log(cloneExec.error.Trim());
                 Logger.Log("Repositorio Clonado.", Logger.LogLevel.Success);
-                Logger.Log(cloneExec.output.Trim());
 
             }
         }

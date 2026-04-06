@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using GitAutoUpdater.Core;
+using GitAutoUpdater.Core.Services;
 using GitAutoUpdater.Schemas;
 using Microsoft.Extensions.Configuration;
 
@@ -16,7 +17,7 @@ namespace GitAutoUpdater
             // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
-                Logger.Log("Saliendo...", Logger.LogLevel.Warning);
+                Logger.Log("Saliendo...\n", Logger.LogLevel.Warning);
                 Environment.Exit(0);
             };
 
@@ -84,7 +85,7 @@ namespace GitAutoUpdater
                 
             /*
              * Loop principal.
-             * Verifica cada <IntSeconds> en "settings.json" 
+             * Verifica cada <IntSeconds> en "settings.json"
              */
             while (true)
             {

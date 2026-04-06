@@ -27,6 +27,8 @@ namespace GitAutoUpdater.Core
 
             // Path del Log
             _logPath = Path.Combine(folderPath, logFile);
+
+            File.AppendAllText(_logPath, "");
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace GitAutoUpdater.Core
                 LogLevel.Warning => "[!]",
                 LogLevel.Success => "[+]",
                 LogLevel.Error => "[-]",
-                _ => "[*]"
+                _ => ""
             };
 
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Fecha y hora

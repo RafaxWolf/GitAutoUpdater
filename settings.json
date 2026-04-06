@@ -5,7 +5,7 @@
       "Branch": "web",
       "LocalPath": "Default"
     },
-    "IntSeconds": 60,
+    "IntSeconds": 30,
     "LogFile": "logs.log"
   }
 }
