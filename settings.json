@@ -1,9 +1,9 @@
 {
   "AppSettings": {
     "GitSettings": {
-      "RepoUrl": "https://github.com/RafaxWolf/Prisma.git",
-      "Branch": "web",
-      "LocalPath": "./",
+      "RepoUrl": "",
+      "Branch": "main",
+      "LocalPath": "Default",
       "UseDedicatedFolder": false
     },
     "IntSeconds": 60,

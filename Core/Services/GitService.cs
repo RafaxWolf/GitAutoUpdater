@@ -13,7 +13,9 @@ namespace GitAutoUpdater.Core.Services
         /// </summary>
         private static (string output, string error, int exitCode) RunGitCommand(string args, string workDir)
         {
-            ProcessStartInfo psi = new ProcessStartInfo
+            // Configuración del proceso para ejecutar el comando de Git
+            var process = new Process();
+            process.StartInfo = new ProcessStartInfo
             {
                 FileName = "git",
                 Arguments = args,
@@ -24,13 +26,37 @@ namespace GitAutoUpdater.Core.Services
                 CreateNoWindow = true
             };
 
-            using Process process = Process.Start(psi);
+            string output = "";
+            string error = "";
 
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
+            // Captura de Output
+            process.OutputDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine(e.Data);
+                    output += e.Data + Environment.NewLine;
+                }
+            };
+
+            // Manejo de errores
+            process.ErrorDataReceived += (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine(e.Data);
+                    error += e.Data + Environment.NewLine;
+                }
+            };
+
+            // Iniciar process y que reciba los datos de salida y error
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
             process.WaitForExit();
 
+            // Devuelve el output, error y código de salida del proceso
             return (output, error, process.ExitCode);
         }
 
@@ -52,7 +78,10 @@ namespace GitAutoUpdater.Core.Services
         /// </summary>
         public static void Clone(GitSettings settings, string baseDir)
         {
-            Logger.Log("Clonando Repositorio...", Logger.LogLevel.Process);
+            var timer = new TimeWaiter();
+
+            timer.Start("Clonando Repositorio...");
+            Logger.Log("Clonando Repositorio...", Logger.LogLevel.Process, true);
 
             var cloneExec = RunGitCommand(
                 $"clone -b {settings.Branch} --single-branch {settings.RepoUrl} \"{settings.LocalPath}\"",
@@ -61,13 +90,14 @@ namespace GitAutoUpdater.Core.Services
 
             if (cloneExec.exitCode != 0)
             {
-                Logger.Log("Error al Clonar.", Logger.LogLevel.Error);
+                timer.Stop("Error al Clonar.", Logger.LogLevel.Error);
                 Logger.Log(cloneExec.error, Logger.LogLevel.Error);
+                Console.ReadLine();
                 Environment.Exit(cloneExec.exitCode);
             }
             else
             {
-                Logger.Log(cloneExec.error.Trim());
+                timer.Stop(cloneExec.error.Trim());
                 Logger.Log("Repositorio Clonado.", Logger.LogLevel.Success);
 
             }

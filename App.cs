@@ -5,13 +5,33 @@ namespace GitAutoUpdater
 {
     class App
     {
+        public static void ErrorHandler(string message)
+        {
+
+            Console.WriteLine();
+            Logger.Log(message, Logger.LogLevel.Error);
+
+            Console.WriteLine("Presiona ENTER para salir...");
+            Console.ReadLine();
+
+            Environment.Exit(0);
+        }
+
         static void Main()
         {
+
             // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
-                Logger.Log("Saliendo...", Logger.LogLevel.Warning);
-                Environment.Exit(0);
+                Thread thread = new Thread(() =>
+                {
+                    Console.WriteLine();
+                    Logger.Log("Saliendo...", Logger.LogLevel.Warning);
+                    Thread.Sleep(1000);
+                    Environment.Exit(0);
+                });
+
+                thread.Start();
             };
 
             // Inicio del Software
