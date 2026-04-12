@@ -7,7 +7,6 @@ namespace GitAutoUpdater
     {
         public static void ErrorHandler(string message)
         {
-
             Console.WriteLine();
             Logger.Log(message, Logger.LogLevel.Error);
 
@@ -66,9 +65,7 @@ namespace GitAutoUpdater
             if (!GitService.Installed())
             {
                 // Si git no esta instalado, muestra error y sale del programa
-                Logger.Log("Error: Git no se encuentra instalado.", Logger.LogLevel.Error);
-                Logger.Log("Por favor instale Git antes de usar el Software.", Logger.LogLevel.Warning);
-                return;
+                ErrorHandler("Git no se encuentra instalado o no esta en el PATH.");
             }
 
             string basePath;
@@ -138,7 +135,7 @@ namespace GitAutoUpdater
                     /*
                      * Nota: Algun dia serviras, por ahora solo SIGUE ESPERANDO.
                      */
-                    Logger.Log("Error: " + ex.Message, Logger.LogLevel.Error);
+                    ErrorHandler("Ocurrió un error: " + ex.Message);
                 }
 
                 // Looper para la re-ejecución
