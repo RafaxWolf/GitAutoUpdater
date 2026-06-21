@@ -3,8 +3,19 @@ using GitAutoUpdater.Schemas;
 
 namespace GitAutoUpdater.Core.Services
 {
+    public class GitCommandResult
+    {
+        public string Output { get; set; }
+        public string Error { get; set; }
+        public int ExitCode { get; set; }
+        public bool Success => ExitCode == 0;
+    }
+
     public static class GitService
     {
+
+        private static readonly List<Process> ActiveGitProcesses = [];
+
         /// <summary>
         /// Handler para la ejecución de comandos de Git y devuelve:
         /// - Manejo del Output
@@ -14,7 +25,7 @@ namespace GitAutoUpdater.Core.Services
         private static (string output, string error, int exitCode) RunGitCommand(string args, string workDir)
         {
             // Configuración del proceso para ejecutar el comando de Git
-            var process = new Process();
+            using var process = new Process();
             process.StartInfo = new ProcessStartInfo
             {
                 FileName = "git",
@@ -34,6 +45,7 @@ namespace GitAutoUpdater.Core.Services
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
+                    //Logger.Log(e.Data);
                     Console.WriteLine(e.Data);
                     output += e.Data + Environment.NewLine;
                 }
@@ -51,10 +63,13 @@ namespace GitAutoUpdater.Core.Services
 
             // Iniciar process y que reciba los datos de salida y error
             process.Start();
+            ActiveGitProcesses.Add(process);
+
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
             process.WaitForExit();
+            ActiveGitProcesses.Remove(process);
 
             // Devuelve el output, error y código de salida del proceso
             return (output, error, process.ExitCode);
@@ -71,6 +86,28 @@ namespace GitAutoUpdater.Core.Services
                 return false;
 
             return versionExec.output.Contains("git version");
+        }
+
+        public static void KillActiveGitProcesses()
+        {
+            foreach (var process in ActiveGitProcesses.ToList())
+            {
+                try
+                {
+                    if (!process.HasExited)
+                    {
+                        process.Kill(true);
+
+                        Logger.Log($"Git process killed (PID {process.Id})", Logger.LogLevel.Warning);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Error al matar proceso: {ex.Message}", Logger.LogLevel.Error);
+                }
+            }
+
+            ActiveGitProcesses.Clear();
         }
 
         /// <summary>
@@ -92,14 +129,11 @@ namespace GitAutoUpdater.Core.Services
             {
                 timer.Stop("Error al Clonar.", Logger.LogLevel.Error);
                 Logger.Log(cloneExec.error, Logger.LogLevel.Error);
-                Console.ReadLine();
-                Environment.Exit(cloneExec.exitCode);
             }
             else
             {
                 timer.Stop(cloneExec.error.Trim());
                 Logger.Log("Repositorio Clonado.", Logger.LogLevel.Success);
-
             }
         }
 
@@ -137,7 +171,12 @@ namespace GitAutoUpdater.Core.Services
             }
 
             // Fetch
-            RunGitCommand($"fetch", settings.LocalPath);
+            var fetchResult = RunGitCommand($"fetch", settings.LocalPath);
+            if (fetchResult.exitCode != 0)
+            {
+                Logger.Log("Error al Fetchear repositorio.", Logger.LogLevel.Error);
+                return false;
+            }
 
             var localResult = RunGitCommand("rev-parse HEAD", settings.LocalPath);
             var remoteResult = RunGitCommand($"rev-parse origin/{settings.Branch}", settings.LocalPath);
@@ -180,6 +219,16 @@ namespace GitAutoUpdater.Core.Services
                 name = name.Substring(0, name.Length - 4);
 
             return name;
+        }
+
+        public static bool IsRepoValid(string path)
+        {
+            if (!Directory.Exists(path))
+                return false;
+
+            var result = RunGitCommand("rev-parse --is-inside-work-tree", path);
+
+            return result.exitCode == 0;
         }
     }
 }

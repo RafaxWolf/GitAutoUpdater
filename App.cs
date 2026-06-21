@@ -1,4 +1,5 @@
-﻿using GitAutoUpdater.Core;
+﻿using System.Security.Cryptography;
+using GitAutoUpdater.Core;
 using GitAutoUpdater.Core.Services;
 
 namespace GitAutoUpdater
@@ -13,24 +14,31 @@ namespace GitAutoUpdater
             Console.WriteLine("Presiona ENTER para salir...");
             Console.ReadLine();
 
-            Environment.Exit(0);
+            Environment.Exit(1);
         }
 
         static void Main()
         {
+            // Process Exit Handler
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                try
+                {
+                    GitService.KillActiveGitProcesses();
+                }
+                catch { }
+            };
 
             // Exit Handler
             Console.CancelKeyPress += (sender, e) =>
             {
-                Thread thread = new Thread(() =>
-                {
-                    Console.WriteLine();
-                    Logger.Log("Saliendo...", Logger.LogLevel.Warning);
-                    Thread.Sleep(1000);
-                    Environment.Exit(0);
-                });
+                e.Cancel = true; // Cancelar el evento para evitar que el programa se cierre inmediatamente
 
-                thread.Start();
+                Logger.Log("Saliendo...", Logger.LogLevel.Warning);
+
+                GitService.KillActiveGitProcesses();
+                Environment.Exit(0);
+                
             };
 
             // Inicio del Software
@@ -94,9 +102,9 @@ namespace GitAutoUpdater
              * Nota: si falla y no clona me voy a cagar en toda su re puta madre
              */
 
-            string gitFolder = Path.Combine(gitSettings.LocalPath, ".git");
+            //string gitFolder = Path.Combine(gitSettings.LocalPath, ".git");
 
-            if (!Directory.Exists(gitSettings.LocalPath) || !Directory.Exists(gitFolder))
+            if (!GitService.IsRepoValid(gitSettings.LocalPath))
             {
                 Logger.Log("El repositorio local no existe.", Logger.LogLevel.Warning);
                 GitService.Clone(gitSettings, baseDir);
@@ -132,10 +140,7 @@ namespace GitAutoUpdater
                 }
                 catch (Exception ex) 
                 {
-                    /*
-                     * Nota: Algun dia serviras, por ahora solo SIGUE ESPERANDO.
-                     */
-                    ErrorHandler("Ocurrió un error: " + ex.Message);
+                    Logger.Log(ex.Message, Logger.LogLevel.Error);
                 }
 
                 // Looper para la re-ejecución
