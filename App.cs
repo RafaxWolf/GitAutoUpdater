@@ -41,6 +41,25 @@ namespace GitAutoUpdater
                 
             };
 
+            // Task para el manejo de eventos de salida
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    if (Console.KeyAvailable)
+                    {
+                        var key = Console.ReadKey(true);
+                        if(key.Key == ConsoleKey.Q)
+                        {
+                            Logger.Log("Cancelando...", Logger.LogLevel.Warning);
+                            GitService.ReqCancel();
+                        }
+                    }
+
+                    Thread.Sleep(100);
+                }
+            });
+
             // Inicio del Software
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine("[/] Iniciando Auto Updater...");
@@ -106,7 +125,7 @@ namespace GitAutoUpdater
 
             if (!GitService.IsRepoValid(gitSettings.LocalPath))
             {
-                Logger.Log("El repositorio local no existe.", Logger.LogLevel.Warning);
+                Logger.Log("El repositorio local no existe o es invalido.", Logger.LogLevel.Warning);
                 GitService.Clone(gitSettings, baseDir);
             }
                 
