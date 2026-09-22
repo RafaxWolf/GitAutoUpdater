@@ -2,7 +2,10 @@
 
 A lightweight .NET console application that keeps a cloned Git repository synchronized with a remote branch. It automatically clones the repository when the local copy is missing, checks for remote changes at a configurable interval, and pulls updates when they are available.
 
-[Español](README.es.md)
+
+***Language***
+- [🇪🇸 Español](README.es.md)
+- 🇺🇸 English
 
 ## Features
 

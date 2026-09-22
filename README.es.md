@@ -2,7 +2,10 @@
 
 Una aplicación ligera de consola para .NET que mantiene sincronizado un repositorio Git clonado con una rama remota. Clona automáticamente el repositorio cuando no existe una copia local, comprueba los cambios remotos en un intervalo configurable y descarga las actualizaciones cuando están disponibles.
 
-[English](README.md)
+
+***Language***
+- 🇪🇸 Español
+- [🇺🇸 English](README.md)
 
 ## Características
 
