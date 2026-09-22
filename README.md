@@ -2,7 +2,9 @@
 
 A cross-platform desktop application for keeping a cloned Git repository synchronized with a remote branch. The `Desktop` branch is the graphical-user-interface edition of GitAutoUpdater and is intended to use [Avalonia UI](https://avaloniaui.net/) for a native-feeling desktop experience across Windows, Linux, and macOS.
 
-[Español](README.es.md)
+***Language***
+- 🇺🇸 English
+- [🇪🇸 Español](README.es.md)
 
 > **Development status:** The Desktop branch is being prepared for the Avalonia UI migration. The repository synchronization services and configuration model are the foundation for the desktop interface; Avalonia views, view models, and platform packaging may still be under active development.
 
