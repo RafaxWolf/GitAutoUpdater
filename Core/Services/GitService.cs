@@ -379,8 +379,8 @@ namespace GitAutoUpdater.Core.Services
             if (name.EndsWith(".git"))
                 name = name.Substring(0, name.Length - 4);
 
-            if(string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("No se pudo obtener el nombre del Repositorio."):
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("No se pudo obtener el nombre del Repositorio.");
 
             return name;
         }
