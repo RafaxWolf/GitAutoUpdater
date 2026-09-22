@@ -2,7 +2,9 @@
 
 Una aplicación de escritorio multiplataforma para mantener sincronizado un repositorio Git clonado con una rama remota. La rama `Desktop` es la edición con interfaz gráfica de GitAutoUpdater y está pensada para utilizar [Avalonia UI](https://avaloniaui.net/) con una experiencia de escritorio nativa en Windows, Linux y macOS.
 
-[English](README.md)
+***Language***
+- [🇺🇸 English](README.md)
+- 🇪🇸 Español
 
 > **Estado de desarrollo:** La rama Desktop se está preparando para la migración a Avalonia UI. Los servicios de sincronización y el modelo de configuración son la base de la interfaz de escritorio; las vistas, los view models y el empaquetado para cada plataforma pueden seguir en desarrollo.
 
